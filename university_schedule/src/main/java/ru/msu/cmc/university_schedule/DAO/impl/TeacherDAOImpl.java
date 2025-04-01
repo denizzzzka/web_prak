@@ -10,17 +10,25 @@ import java.util.List;
 @Repository
 public class TeacherDAOImpl extends AbstractDAOImpl<Teacher, Long> implements TeacherDAO {
 
+    public TeacherDAOImpl() {
+        super(Teacher.class);
+    }
+
     @Override
     public List<Teacher> findByCourse(Long courseId) {
-        return getSession().createQuery("SELECT tc.teacher FROM TeacherCourse tc WHERE tc.course.id = :courseId", Teacher.class)
-                .setParameter("courseId", courseId)
-                .getResultList();
+        try (Session session = getSession()) {
+            return session.createQuery("SELECT tc.teacher FROM TeacherCourse tc WHERE tc.course.id = :courseId", Teacher.class)
+                    .setParameter("courseId", courseId)
+                    .getResultList();
+        }
     }
 
     @Override
     public List<Teacher> findByName(String namePrefix) {
-        return getSession().createQuery("FROM Teacher t WHERE t.fullName LIKE :namePrefix", Teacher.class)
-                .setParameter("namePrefix", namePrefix + "%")
-                .getResultList();
+        try (Session session = getSession()) {
+            return session.createQuery("FROM Teacher t WHERE t.fullName LIKE :namePrefix", Teacher.class)
+                    .setParameter("namePrefix", namePrefix + "%")
+                    .getResultList();
+        }
     }
 }

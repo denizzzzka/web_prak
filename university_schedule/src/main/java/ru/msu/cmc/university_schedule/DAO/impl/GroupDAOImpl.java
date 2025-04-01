@@ -11,19 +11,25 @@ import java.util.List;
 @Repository
 public class GroupDAOImpl extends AbstractDAOImpl<Group, Long> implements GroupDAO {
 
+    public GroupDAOImpl() {
+        super(Group.class);
+    }
+
     @Override
     public List<Group> findByName(String namePrefix) {
-        Session session = getSession();
-        return session.createQuery("FROM Group g WHERE g.name LIKE :namePrefix", Group.class)
-                .setParameter("namePrefix", namePrefix + "%")
-                .getResultList();
+        try (Session session = getSession()) {
+            return session.createQuery("FROM Group g WHERE g.name LIKE :namePrefix", Group.class)
+                    .setParameter("namePrefix", namePrefix + "%")
+                    .getResultList();
+        }
     }
 
     @Override
     public List<Group> findByStream(Stream stream) {
-        Session session = getSession();
-        return session.createQuery("FROM Group g WHERE g.stream = :stream", Group.class)
-                .setParameter("stream", stream)
-                .getResultList();
+        try (Session session = getSession()) {
+            return session.createQuery("FROM Group g WHERE g.stream = :stream", Group.class)
+                    .setParameter("stream", stream)
+                    .getResultList();
+        }
     }
 }

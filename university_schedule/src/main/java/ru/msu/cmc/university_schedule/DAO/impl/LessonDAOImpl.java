@@ -10,25 +10,35 @@ import java.util.List;
 @Repository
 public class LessonDAOImpl extends AbstractDAOImpl<Lesson, Long> implements LessonDAO {
 
+    public LessonDAOImpl() {
+        super(Lesson.class);
+    }
+
     @Override
     public List<Lesson> findByStudent(Long studentId) {
-        return getSession().createQuery(
-                        "SELECT ls.lesson FROM LessonStudent ls WHERE ls.student.id = :studentId", Lesson.class)
-                .setParameter("studentId", studentId)
-                .getResultList();
+        try (Session session = getSession()) {
+            return session.createQuery(
+                            "SELECT ls.lesson FROM LessonStudent ls WHERE ls.student.id = :studentId", Lesson.class)
+                    .setParameter("studentId", studentId)
+                    .getResultList();
+        }
     }
 
     @Override
     public List<Lesson> findByTeacher(Long teacherId) {
-        return getSession().createQuery("FROM Lesson l WHERE l.teacher.id = :teacherId", Lesson.class)
-                .setParameter("teacherId", teacherId)
-                .getResultList();
+        try (Session session = getSession()) {
+            return session.createQuery("FROM Lesson l WHERE l.teacher.id = :teacherId", Lesson.class)
+                    .setParameter("teacherId", teacherId)
+                    .getResultList();
+        }
     }
 
     @Override
     public List<Lesson> findByAuditorium(Long auditoriumId) {
-        return getSession().createQuery("FROM Lesson l WHERE l.auditorium.id = :auditoriumId", Lesson.class)
-                .setParameter("auditoriumId", auditoriumId)
-                .getResultList();
+        try (Session session = getSession()) {
+            return session.createQuery("FROM Lesson l WHERE l.auditorium.id = :auditoriumId", Lesson.class)
+                    .setParameter("auditoriumId", auditoriumId)
+                    .getResultList();
+        }
     }
 }

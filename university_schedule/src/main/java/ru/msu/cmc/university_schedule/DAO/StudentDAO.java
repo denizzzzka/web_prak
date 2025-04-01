@@ -1,6 +1,7 @@
 package ru.msu.cmc.university_schedule.DAO;
 
 import ru.msu.cmc.university_schedule.entities.Student;
+
 import java.util.List;
 
 public interface StudentDAO extends AbstractDAO<Student, Long> {

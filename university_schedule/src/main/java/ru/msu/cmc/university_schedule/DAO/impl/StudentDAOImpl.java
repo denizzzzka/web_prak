@@ -10,24 +10,34 @@ import java.util.List;
 @Repository
 public class StudentDAOImpl extends AbstractDAOImpl<Student, Long> implements StudentDAO {
 
+    public StudentDAOImpl() {
+        super(Student.class);
+    }
+
     @Override
     public List<Student> findByStream(Long streamId) {
-        return getSession().createQuery("FROM Student s WHERE s.stream.id = :streamId", Student.class)
-                .setParameter("streamId", streamId)
-                .getResultList();
+        try (Session session = getSession()) {
+            return session.createQuery("FROM Student s WHERE s.stream.id = :streamId", Student.class)
+                    .setParameter("streamId", streamId)
+                    .getResultList();
+        }
     }
 
     @Override
     public List<Student> findByGroup(Long groupId) {
-        return getSession().createQuery("FROM Student s WHERE s.group.id = :groupId", Student.class)
-                .setParameter("groupId", groupId)
-                .getResultList();
+        try (Session session = getSession()) {
+            return session.createQuery("FROM Student s WHERE s.group.id = :groupId", Student.class)
+                    .setParameter("groupId", groupId)
+                    .getResultList();
+        }
     }
 
     @Override
     public List<Student> findByName(String namePrefix) {
-        return getSession().createQuery("FROM Student s WHERE s.fullName LIKE :namePrefix", Student.class)
-                .setParameter("namePrefix", namePrefix + "%")
-                .getResultList();
+        try (Session session = getSession()) {
+            return session.createQuery("FROM Student s WHERE s.fullName LIKE :namePrefix", Student.class)
+                    .setParameter("namePrefix", namePrefix + "%")
+                    .getResultList();
+        }
     }
 }

@@ -10,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class TeacherCourse {
+public class TeacherCourse implements CommonEntity<TeacherCourseId>{
     @EmbeddedId
     private TeacherCourseId id;
 

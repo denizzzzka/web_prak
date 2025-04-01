@@ -10,11 +10,16 @@ import java.util.List;
 @Repository
 public class StreamDAOImpl extends AbstractDAOImpl<Stream, Long> implements StreamDAO {
 
+    public StreamDAOImpl() {
+        super(Stream.class);
+    }
+
     @Override
     public List<Stream> findByName(String namePrefix) {
-        Session session = getSession();
-        return session.createQuery("FROM Stream s WHERE s.name LIKE :namePrefix", Stream.class)
-                .setParameter("namePrefix", namePrefix + "%")
-                .getResultList();
+        try (Session session = getSession()) {
+            return session.createQuery("FROM Stream s WHERE s.name LIKE :namePrefix", Stream.class)
+                    .setParameter("namePrefix", namePrefix + "%")
+                    .getResultList();
+        }
     }
 }
