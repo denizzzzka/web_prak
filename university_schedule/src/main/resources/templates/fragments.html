@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <title th:insert="${pageTitle}">University Schedule</title>
+    <link th:href="@{https://cdn.jsdelivr.net/npm/bootstrap/5.4.0/dist/css/bootstrap.min.css}" rel="stylesheet"/>
+</head>
+
+<body>
+<nav th:fragment="header" class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/}">University</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" th:href="@{/students}">Студенты</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/teachers}">Преподаватели</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/auditoriums}">Аудитории</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/courses}">Курсы</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/schedule}">Расписания</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<footer th:fragment="footer" class="bg-light text-center py-3 mt-4">
+    &copy; 2025 My University Schedule
+</footer>
+
+<script th:src="@{https://cdn.jsdelivr.net/npm/bootstrap/5.4.0/dist/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

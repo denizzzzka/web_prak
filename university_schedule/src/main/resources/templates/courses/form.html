@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${course.id != null
+                   ? 'Редактировать курс: ' + course.name
+                   : 'Новый курс'}">Форма курса</title>
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+            rel="stylesheet" integrity="sha384-…" crossorigin="anonymous"/>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">University Schedule</a>
+    </div>
+</nav>
+
+<main class="container">
+    <h1 class="mb-4"
+        th:text="${course.id != null
+                 ? 'Редактировать курс'
+                 : 'Добавить курс'}">Форма курса</h1>
+
+    <form th:object="${course}"
+          th:action="@{/courses}"
+          method="post"
+          class="row g-3"
+          th:unless="${course.id != null}">
+
+        <div class="col-md-6">
+            <label class="form-label">Название</label>
+            <input type="text" th:field="*{name}" class="form-control" required/>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Поток</label>
+            <select th:field="*{stream.id}" class="form-select">
+                <option th:value="''"     th:text="'—'"/>
+                <option th:each="st : ${streams}"
+                        th:value="${st.id}"
+                        th:text="${st.name}"/>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Группа</label>
+            <select th:field="*{group.id}" class="form-select">
+                <option th:value="''"     th:text="'—'"/>
+                <option th:each="g : ${groups}"
+                        th:value="${g.id}"
+                        th:text="${g.name}"/>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-check form-switch mt-4">
+                <input class="form-check-input" type="checkbox" th:field="*{specialCourse}"/>
+                <label class="form-check-label">Спецкурс</label>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label">Интенсивность</label>
+            <input type="number" th:field="*{weeklyIntensity}" class="form-control" min="0" required/>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label">Год курса</label>
+            <input type="number" th:field="*{yearOfStudy}" class="form-control" min="1" required/>
+        </div>
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <a th:href="@{/courses}" class="btn btn-secondary ms-2">Отмена</a>
+        </div>
+
+    </form>
+
+    <form th:object="${course}"
+          th:action="@{/courses/{id}(id=${course.id})}"
+          method="post"
+          class="row g-3"
+          th:if="${course.id != null}">
+
+        <div class="col-md-6">
+            <label class="form-label">Название</label>
+            <input type="text" th:field="*{name}" class="form-control" required/>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Поток</label>
+            <select th:field="*{stream.id}" class="form-select">
+                <option th:value="''"     th:text="'—'"/>
+                <option th:each="st : ${streams}"
+                        th:value="${st.id}"
+                        th:text="${st.name}"/>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Группа</label>
+            <select th:field="*{group.id}" class="form-select">
+                <option th:value="''"     th:text="'—'"/>
+                <option th:each="g : ${groups}"
+                        th:value="${g.id}"
+                        th:text="${g.name}"/>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-check form-switch mt-4">
+                <input class="form-check-input" type="checkbox" th:field="*{specialCourse}"/>
+                <label class="form-check-label">Спецкурс</label>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label">Интенсивность</label>
+            <input type="number" th:field="*{weeklyIntensity}" class="form-control" min="0" required/>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label">Год курса</label>
+            <input type="number" th:field="*{yearOfStudy}" class="form-control" min="1" required/>
+        </div>
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <a th:href="@{/courses}" class="btn btn-secondary ms-2">Отмена</a>
+        </div>
+
+    </form>
+</main>
+
+<script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-…" crossorigin="anonymous"></script>
+</body>
+</html>
