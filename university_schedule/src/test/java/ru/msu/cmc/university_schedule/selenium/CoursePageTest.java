@@ -8,6 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import ru.msu.cmc.university_schedule.DAO.*;
 import ru.msu.cmc.university_schedule.entities.*;
+import org.junit.jupiter.api.Test;
+import org.openqa.selenium.JavascriptExecutor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,6 +17,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -96,6 +103,131 @@ public class CoursePageTest extends SeleniumTestBase {
 
     private String baseUrl() {
         return "http://localhost:" + port;
+    }
+
+    @Test
+    void addNewCourse() {
+        driver.get(baseUrl() + "/courses");
+        driver.findElement(By.cssSelector("a.btn-success")).click();
+
+        new WebDriverWait(driver, Duration.ofSeconds(1))
+                .until(ExpectedConditions.titleIs("Новый курс"));
+
+        String name = "Курс Новый";
+        driver.findElement(By.name("name")).sendKeys(name);
+        driver.findElement(By.name("weeklyIntensity")).clear();
+        driver.findElement(By.name("weeklyIntensity")).sendKeys("7");
+        driver.findElement(By.name("yearOfStudy")).clear();
+        driver.findElement(By.name("yearOfStudy")).sendKeys("3");
+
+        driver.findElement(By.name("stream.id"))
+                .findElement(By.cssSelector("option[value='" + st1.getId() + "']")).click();
+        driver.findElement(By.name("group.id"))
+                .findElement(By.cssSelector("option[value='" + gr1.getId() + "']")).click();
+
+        WebElement special = driver.findElement(By.cssSelector("input[type=checkbox]"));
+        special.click();
+        assertThat(special.isSelected()).isTrue();
+
+        driver.findElement(By.cssSelector("button[type=submit]")).click();
+
+        new WebDriverWait(driver, Duration.ofSeconds(1))
+                .until(ExpectedConditions.urlMatches(".*/courses$"));
+
+        By link = By.xpath("//table//a[text()='" + name + "']");
+        new WebDriverWait(driver, Duration.ofSeconds(1))
+                .until(ExpectedConditions.visibilityOfElementLocated(link));
+
+        assertThat(driver.findElements(link)).isNotEmpty();
+    }
+
+    @Test
+    void editExistingCourse() {
+        driver.get(baseUrl() + "/courses/" + course1.getId() + "/edit");
+        new WebDriverWait(driver, Duration.ofSeconds(1))
+                .until(ExpectedConditions.titleContains("Редактировать курс"));
+
+        String updatedName = "Курс 1 Updated";
+        WebElement nameInput = driver.findElement(By.name("name"));
+        nameInput.clear();
+        nameInput.sendKeys(updatedName);
+
+        WebElement intensity = driver.findElement(By.name("weeklyIntensity"));
+        intensity.clear();
+        intensity.sendKeys("9");
+
+        driver.findElement(By.cssSelector("button[type=submit]")).click();
+
+        new WebDriverWait(driver, Duration.ofSeconds(1))
+                .until(ExpectedConditions.urlMatches(".*/courses/\\d+$"));
+        assertThat(driver.getCurrentUrl()).endsWith("/courses/" + course1.getId());
+
+        String header = driver.findElement(By.tagName("h1")).getText();
+        assertThat(header).isEqualTo("Курс: " + updatedName);
+    }
+
+    @Test
+    void deleteCourse() {
+        Course tmp = new Course();
+        tmp.setName("Temp to delete");
+        tmp.setSpecialCourse(false);
+        tmp.setWeeklyIntensity(1);
+        tmp.setYearOfStudy(1);
+        courseDAO.save(tmp);
+
+        driver.get(baseUrl() + "/courses/" + tmp.getId());
+
+
+        driver.findElement(By.cssSelector("form button.btn-danger")).click();
+
+        new WebDriverWait(driver, Duration.ofSeconds(1))
+                .until(ExpectedConditions.alertIsPresent())
+                .accept();
+
+        new WebDriverWait(driver, Duration.ofSeconds(1))
+                .until(ExpectedConditions.urlMatches(".*/courses$"));
+
+        assertThat(driver.findElements(By.linkText("Temp to delete"))).isEmpty();
+    }
+
+
+    @Test
+    void addAndDeleteLessonInCourseSchedule() {
+        driver.get(baseUrl() + "/courses/" + course1.getId() + "/schedule");
+        int initial = driver.findElements(By.cssSelector("table tbody tr")).size();
+
+        driver.findElement(By.name("teacherId"))
+                .findElement(By.cssSelector("option[value='" + teacher1.getId() + "']")).click();
+        driver.findElement(By.name("auditoriumId"))
+                .findElement(By.cssSelector("option[value='" + aud1.getId() + "']")).click();
+
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("arguments[0].value = '2025-05-01';",
+                driver.findElement(By.name("startDate")));
+        js.executeScript("arguments[0].value = '08:00';",
+                driver.findElement(By.name("startTime")));
+        js.executeScript("arguments[0].value = '2025-05-01';",
+                driver.findElement(By.name("endDate")));
+        js.executeScript("arguments[0].value = '10:00';",
+                driver.findElement(By.name("endTime")));
+
+        driver.findElement(By.cssSelector("button[type=submit]")).click();
+
+        new WebDriverWait(driver, Duration.ofSeconds(1))
+                .until(ExpectedConditions.numberOfElementsToBe(
+                        By.cssSelector("table tbody tr"), initial + 1));
+
+        List<WebElement> deleteBtns = driver.findElements(
+                By.cssSelector("button.btn-danger"));
+        deleteBtns.get(deleteBtns.size() - 1).click();
+
+        new WebDriverWait(driver, Duration.ofSeconds(1))
+                .until(ExpectedConditions.alertIsPresent())
+                .accept();
+
+        new WebDriverWait(driver, Duration.ofSeconds(1))
+                .until(ExpectedConditions.numberOfElementsToBe(
+                        By.cssSelector("table tbody tr"), initial));
     }
 
     @Test

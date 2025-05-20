@@ -103,7 +103,8 @@ public class CourseController {
         return "courses/view";
     }
 
-    @PostMapping("/{id}/delete")
+
+    @DeleteMapping("/{id}")
     public String deleteCourse(@PathVariable Long id) {
         courseDao.deleteById(id);
         return "redirect:/courses";

@@ -64,10 +64,9 @@
         </a>
         <form th:action="@{/courses/{id}(id=${course.id})}"
               method="post"
-              th:object="${course}"
               style="display:inline"
               onsubmit="return confirm('Удалить курс?');">
-            <input type="hidden" name="_method" value="delete"/>
+            <input type="hidden" name="_method" value="DELETE"/>
             <button type="submit" class="btn btn-danger me-2">🗑️ Удалить</button>
         </form>
         <a th:href="@{/courses/{id}/schedule(id=${course.id})}"

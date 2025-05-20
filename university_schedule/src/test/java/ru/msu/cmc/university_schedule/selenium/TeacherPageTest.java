@@ -3,12 +3,15 @@ package ru.msu.cmc.university_schedule.selenium;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import ru.msu.cmc.university_schedule.DAO.*;
 import ru.msu.cmc.university_schedule.entities.*;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -134,6 +137,36 @@ public class TeacherPageTest extends SeleniumTestBase {
         streamDAO.getAll().forEach(streamDAO::delete);
         auditoriumDAO.getAll().forEach(auditoriumDAO::delete);
     }
+
+    @Test
+    void addNewTeacher() {
+        driver.get(baseUrl() + "/teachers");
+        driver.findElement(By.cssSelector("a.btn-success")).click();
+
+        new WebDriverWait(driver, Duration.ofSeconds(5))
+                .until(ExpectedConditions.titleContains("Добавить / Редактировать преподавателя"));
+
+        String newName = "Sidorov S.S.";
+        driver.findElement(By.name("fullName")).sendKeys(newName);
+
+        String courseId = course1.getId().toString();
+        WebElement chk = driver.findElement(
+                By.cssSelector("input[name=courses][value='" + courseId + "']"));
+        chk.click();
+        assertThat(chk.isSelected()).isTrue();
+
+        driver.findElement(By.cssSelector("button[type=submit]")).click();
+
+        new WebDriverWait(driver, Duration.ofSeconds(5))
+                .until(ExpectedConditions.urlMatches(".*/teachers(\\?.*)?$"));
+
+        By linkLocator = By.xpath("//table//a[text()='" + newName + "']");
+        new WebDriverWait(driver, Duration.ofSeconds(5))
+                .until(ExpectedConditions.visibilityOfElementLocated(linkLocator));
+
+        assertThat(driver.findElements(linkLocator)).isNotEmpty();
+    }
+
 
     @Test
     void teachersListPageDisplaysAllAndNavigatesToProfile() {

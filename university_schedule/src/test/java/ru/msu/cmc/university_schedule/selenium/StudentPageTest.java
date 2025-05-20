@@ -3,12 +3,16 @@ package ru.msu.cmc.university_schedule.selenium;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import ru.msu.cmc.university_schedule.DAO.*;
 import ru.msu.cmc.university_schedule.entities.*;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -119,6 +123,50 @@ public class StudentPageTest extends SeleniumTestBase {
         lessonStudentDAO.save(lessonStudent1);
     }
 
+    @Test
+    void createNewStudent() {
+        driver.get(baseUrl() + "/students/new");
+
+        driver.findElement(By.name("fullName")).sendKeys("Петров П.П.");
+        WebElement yearInput = driver.findElement(By.name("yearOfStudy"));
+        yearInput.clear();
+        yearInput.sendKeys("3");
+        new Select(driver.findElement(By.name("stream.id")))
+                .selectByValue(stream1.getId().toString());
+        new Select(driver.findElement(By.name("group.id")))
+                .selectByValue(group1.getId().toString());
+
+        driver.findElement(By.cssSelector("button[type=submit]")).click();
+
+        driver.get(baseUrl() + "/students");
+        List<WebElement> rows = driver.findElements(By.cssSelector("table tbody tr"));
+        assertThat(rows).hasSize(2);
+
+        List<WebElement> lastCols = rows.get(1).findElements(By.tagName("td"));
+        assertThat(lastCols.get(1).getText()).isEqualTo("Петров П.П.");
+        assertThat(lastCols.get(2).getText()).isEqualTo(stream1.getName());
+        assertThat(lastCols.get(3).getText()).isEqualTo(group1.getName());
+    }
+
+    @Test
+    void editExistingStudent() {
+        driver.get(baseUrl() + "/students/" + student1.getId() + "/edit");
+
+        WebElement nameInput = driver.findElement(By.name("fullName"));
+        nameInput.clear();
+        nameInput.sendKeys("Иванов И.И. Updated");
+
+        driver.findElement(By.cssSelector("button[type=submit]")).click();
+
+        new WebDriverWait(driver, Duration.ofSeconds(1))
+                .until(ExpectedConditions.urlContains("/students"));
+
+        driver.get(baseUrl() + "/students");
+        WebElement firstRowName = driver.findElement(
+                By.cssSelector("table tbody tr:first-child td:nth-child(2)")
+        );
+        assertThat(firstRowName.getText()).isEqualTo("Иванов И.И. Updated");
+    }
 
     @AfterAll
     void cleanupData() {
